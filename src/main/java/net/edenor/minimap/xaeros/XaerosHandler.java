@@ -1,5 +1,6 @@
 package net.edenor.minimap.xaeros;
 
+import net.edenor.minimap.MinimapConfig;
 import net.edenor.minimap.MinimapPlugin;
 import net.edenor.minimap.api.MessageHandler;
 import net.edenor.minimap.api.MinimapPlayer;
@@ -14,14 +15,12 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import java.io.IOException;
 
 public class XaerosHandler implements MessageHandler {
-    private MinimapPlugin plugin;
 
     public static String XAEROS_CHANNEL = "xaerominimap:main";
     public static String XAEROS_MAP_CHANNEL = "xaeroworldmap:main";
 
 
     public XaerosHandler(MinimapPlugin plugin) {
-        this.plugin = plugin;
     }
 
     public void sendXaerosHandshake(MinimapPlayer player) {
@@ -33,8 +32,8 @@ public class XaerosHandler implements MessageHandler {
     }
 
     public void sendXaerosConfig(MinimapPlayer player) {
-        XaerosWorldConfig worldConfig = plugin.getConfig().getWorldConfig(player.getLocation().getWorld().getName()).xaerosConfig;
-        XaerosConfig config = plugin.getConfig().globalXaerosConfig;
+        XaerosWorldConfig worldConfig = MinimapConfig.getWorldConfig(player.getLocation().getWorld().getName()).xaerosConfig;
+        XaerosConfig config = MinimapConfig.globalXaerosConfig;
         if (worldConfig != null && worldConfig.enabled) {
             config = worldConfig;
         }

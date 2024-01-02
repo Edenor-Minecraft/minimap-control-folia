@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class JMHandler implements MessageHandler {
-    private MinimapPlugin plugin;
+    private final MinimapPlugin plugin;
 
     public JMHandler(MinimapPlugin plugin) {
         this.plugin = plugin;
@@ -46,7 +46,7 @@ public class JMHandler implements MessageHandler {
         String dim = NetworkUtils.readUtf(in);
 
         Optional<World> world = plugin.getServer().getWorlds().stream().filter(w->w.getName().equals(dim)).findFirst();
-        if (!world.isPresent()){
+        if (world.isEmpty()){
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>That world doesn't exist"));
             return;
         }
@@ -66,11 +66,11 @@ public class JMHandler implements MessageHandler {
 
         HashMap<String, String> payloads = new HashMap<>();
 
-        payloads.put("GLOBAL", gson.toJson(plugin.getConfig().globalJourneymapConfig));
-        payloads.put("DEFAULT", gson.toJson(plugin.getConfig().defaultWorldConfig));
+        payloads.put("GLOBAL", gson.toJson(MinimapConfig.globalJourneymapConfig));
+        payloads.put("DEFAULT", gson.toJson(MinimapConfig.defaultWorldConfig));
 
         for (World world : plugin.getServer().getWorlds()){
-            payloads.put(world.getName(),gson.toJson(plugin.getConfig().getWorldConfig(world.getName())));
+            payloads.put(world.getName(),gson.toJson(MinimapConfig.getWorldConfig(world.getName())));
         }
 
         for (Map.Entry<String, String> ent : payloads.entrySet()) {
@@ -105,15 +105,15 @@ public class JMHandler implements MessageHandler {
         Gson gson = new Gson();
         if (type == 1) {
             JMConfig newConfig = gson.fromJson(payload, JMConfig.class);
-            plugin.getConfig().globalJourneymapConfig = newConfig;
+            MinimapConfig.globalJourneymapConfig = newConfig;
         } else if (type == 2 || type == 3) {
             JMWorldConfig newConfig = gson.fromJson(payload, JMWorldConfig.class);
             if (type == 3) {
-                MinimapConfig.WorldConfig worldConfig = plugin.getConfig().getWorldConfig(dimension);
+                MinimapConfig.WorldConfig worldConfig = MinimapConfig.getWorldConfig(dimension);
                 worldConfig.journeymapConfig = newConfig;
                 System.out.println(dimension);
             } else {
-                plugin.getConfig().defaultWorldConfig = newConfig;
+                MinimapConfig.defaultWorldConfig = newConfig;
             }
         }
         plugin.saveConfig();
@@ -140,8 +140,8 @@ public class JMHandler implements MessageHandler {
     }
 
     public void handlePerm(Player player, byte[] message, String replyChannel, int replyByte) {
-        JMWorldConfig worldConfig = plugin.getConfig().getWorldConfig(player.getLocation().getWorld().getName()).journeymapConfig;
-        JMConfig config = plugin.getConfig().globalJourneymapConfig;
+        JMWorldConfig worldConfig = MinimapConfig.getWorldConfig(player.getLocation().getWorld().getName()).journeymapConfig;
+        JMConfig config = MinimapConfig.globalJourneymapConfig;
         if (worldConfig != null) {
             config = worldConfig.applyToConfig(config);
         }
@@ -160,42 +160,22 @@ public class JMHandler implements MessageHandler {
     @Override
     public void onPluginMessage(String channel, MinimapPlayer player, byte[] message) {
         switch (channel.split(":")[1]) {
-            case "version":
-                handleVersion(player, message, channel);
-                break;
-            case "perm_req":
-                handlePerm(player.nativePlayer, message, channel, 0);
-                break;
-            case "admin_req":
-                handleAdminReq(player, message, channel, 0);
-                break;
-            case "admin_save":
-                handleAdminSave(player, message, channel, 0);
-                break;
-            case "teleport_req":
-                handleTeleport(player, message, channel, 0);
-                break;
-            case "common":
+            case "version" -> handleVersion(player, message, channel);
+            case "perm_req" -> handlePerm(player.nativePlayer, message, channel, 0);
+            case "admin_req" -> handleAdminReq(player, message, channel, 0);
+            case "admin_save" -> handleAdminSave(player, message, channel, 0);
+            case "teleport_req" -> handleTeleport(player, message, channel, 0);
+            case "common" -> {
                 ByteArrayDataInput in = ByteStreams.newDataInput(message);
                 byte type = in.readByte();
                 switch (type) {
-                    case 0:
-                        handleAdminReq(player, message, channel, type);
-                        break;
-                    case 1:
-                        handleAdminSave(player, message, channel, type);
-                        break;
-                    case 2:
-                        handlePerm(player.nativePlayer, message, channel, type);
-                        break;
-                    case 4:
-                        handleTeleport(player, message, channel, type);
-                        break;
-                    case 5:
-                        handleMPOptions(player, message, channel, type);
-                        break;
+                    case 0 -> handleAdminReq(player, message, channel, type);
+                    case 1 -> handleAdminSave(player, message, channel, type);
+                    case 2 -> handlePerm(player.nativePlayer, message, channel, type);
+                    case 4 -> handleTeleport(player, message, channel, type);
+                    case 5 -> handleMPOptions(player, message, channel, type);
                 }
-                break;
+            }
         }
     }
 }

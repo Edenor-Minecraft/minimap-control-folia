@@ -1,36 +1,30 @@
 package net.edenor.minimap;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.edenor.minimap.api.MinimapPlayer;
-import net.edenor.minimap.api.MinimapWorld;
 import net.edenor.minimap.jm.JMHandler;
 import net.edenor.minimap.worldinfo.WorldInfoHandler;
 import net.edenor.minimap.xaeros.XaerosHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
-import org.bukkit.World;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.loader.ConfigurationLoader;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MinimapPlugin extends JavaPlugin implements @NotNull Listener, @NotNull PluginMessageListener {
     private static MinimapPlugin instance;
-
-    private MinimapConfig config;
-
     private static final List<String> listenChannels = Arrays.asList(
             "journeymap:version",
             "journeymap:perm_req",
@@ -66,96 +60,40 @@ public class MinimapPlugin extends JavaPlugin implements @NotNull Listener, @Not
     @Override
     public void onEnable() {
         // Plugin startup logic
-        instance = this;
+        instance = plugin = this;
         this.adventure = BukkitAudiences.create(this);
         getServer().getPluginManager().registerEvents(this, this);
-        enableSelf();
-    }
-
-    @Override
-    public @NotNull ComponentLogger getComponentLogger() {
-        return super.getComponentLogger();
-    }
-
-    @Override
-    public @NotNull Logger getSLF4JLogger() {
-        return super.getSLF4JLogger();
+        listenChannels.forEach(this::registerChannel);
+        MinimapConfig.initConfig();
     }
 
     @Override
     public void onDisable() {
+        saveConfig();
         // Plugin shutdown logic
-        disableSelf();
+        System.out.println("Disabled");
         if(this.adventure != null) {
             this.adventure.close();
             this.adventure = null;
         }
     }
-
     public static MinimapPlugin getInstance() {
         return instance;
     }
 
-
-    public void enableSelf() {
-        instance = this;
-        listenChannels.forEach(this::registerChannel);
-        loadConfig();
-    }
-
-    public void disableSelf() {
-        System.out.println("Disabled");
-    }
-
-    public void loadConfig() {
-        try {
-            final CommentedConfigurationNode node = getConfigLoader().load();
-            config = node.get(MinimapConfig.class);
-            for (World world : plugin.getServer().getWorlds()){
-                config.addWorld(world);
-            }
-            node.set(MinimapConfig.class, config);
-            getConfigLoader().save(node);
-        } catch (ConfigurateException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void handleSwitchWorld(MinimapWorld world, MinimapPlayer player) {
-        xaerosHandler.sendXaerosConfig(player);
-    }
-
-    public void handlePlayerJoined(MinimapPlayer player) {
-        xaerosHandler.sendXaerosHandshake(player);
-        xaerosHandler.sendXaerosConfig(player);
-    }
-
     public void saveConfig() {
         try {
-            final CommentedConfigurationNode node = getConfigLoader().load();
-            node.set(MinimapConfig.class, config);
-            getConfigLoader().save(node);
-        } catch (ConfigurateException e) {
-            e.printStackTrace();
+            MinimapConfig.saveConfig();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    public MinimapConfig getConfig() {
-        return config;
     }
 
     public void onPluginMessage(String channel, MinimapPlayer player, byte[] message) {
         switch (channel.split(":")[0]) {
-            case "journeymap":
-                jmHandler.onPluginMessage(channel, player, message);
-                break;
-            case "xaerominimap":
-            case "xaeroworldmap":
-                xaerosHandler.onPluginMessage(channel, player, message);
-                break;
-            case "worldinfo":
-                worldInfoHandler.onPluginMessage(channel, player, message);
-                break;
+            case "journeymap" -> jmHandler.onPluginMessage(channel, player, message);
+            case "xaerominimap", "xaeroworldmap" -> xaerosHandler.onPluginMessage(channel, player, message);
+            case "worldinfo" -> worldInfoHandler.onPluginMessage(channel, player, message);
         }
     }
 
@@ -163,25 +101,36 @@ public class MinimapPlugin extends JavaPlugin implements @NotNull Listener, @Not
         this.onPluginMessage(channel, new MinimapPlayer(player), message);
     }
 
+    private final Map<String, ScheduledTask> playerTaskMap = new HashMap<>();
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        // The player join event is slightly too early. I unfortunately don't know an event that fires late enough for Xaeros to recognize the packet
-        // If anyone knows, please let me know
-        plugin.getServer().getScheduler().runTaskLater(plugin, ()->this.handlePlayerJoined(new MinimapPlayer(event.getPlayer())), 40L);
+        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
+                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 20L);
+
+        ScheduledTask task = plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin,
+                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 40L, 100L);
+        playerTaskMap.put(event.getPlayer().getName(), task);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        ScheduledTask task = playerTaskMap.get(event.getPlayer().getName());
+        if (task != null) {
+            playerTaskMap.get(event.getPlayer().getName()).cancel();
+            playerTaskMap.remove(event.getPlayer().getName());
+        }
     }
 
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent event) {
-        this.handleSwitchWorld(new MinimapWorld(event.getPlayer().getWorld()), new MinimapPlayer(event.getPlayer()));
+        handlePackets(new MinimapPlayer(event.getPlayer()));
     }
 
-    public ConfigurationLoader<CommentedConfigurationNode> getConfigLoader() {
-        File defaultConfig = plugin.getDataFolder();
-
-        if (!defaultConfig.exists()) defaultConfig.mkdirs();
-        return YamlConfigurationLoader.builder()
-                .defaultOptions(opts -> opts.shouldCopyDefaults(true))
-                .path(defaultConfig.toPath().resolve("config.yml"))
-                .build();
+    public void handlePackets(MinimapPlayer player) {
+        //if (!MinimapConfig.globalVoxelConfig.enabled)
+            //player.nativePlayer.sendPluginMessage(this, "voxel" Component.text("§3 §6 §3 §6 §3 §6 §e §r §3 §6 §3 §6 §3 §6 §d "));
+        xaerosHandler.sendXaerosHandshake(player);
+        xaerosHandler.sendXaerosConfig(player);
     }
 }

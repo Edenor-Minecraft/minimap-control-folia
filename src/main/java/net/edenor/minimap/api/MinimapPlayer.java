@@ -2,11 +2,8 @@ package net.edenor.minimap.api;
 
 import net.edenor.minimap.MinimapPlugin;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class MinimapPlayer{
     public Player nativePlayer;
@@ -24,7 +21,7 @@ public class MinimapPlayer{
     }
 
     public void teleport(MinimapLocation location) {
-        nativePlayer.teleport(((MinimapLocation) location).getNativeLocation());
+        nativePlayer.teleport(location.nativeLocation());
     }
 
     public MinimapLocation getLocation() {
@@ -32,15 +29,7 @@ public class MinimapPlayer{
     }
 
     public void disconnect(Component reason) {
-        nativePlayer.kickPlayer(LegacyComponentSerializer.legacy('\u00a7').serialize(reason));
-    }
-
-    public UUID getUniqueId() {
-        return nativePlayer.getUniqueId();
-    }
-
-    public String getUsername() {
-        return nativePlayer.getName();
+        nativePlayer.kick(reason);
     }
 
     public boolean hasPermission(String string) {

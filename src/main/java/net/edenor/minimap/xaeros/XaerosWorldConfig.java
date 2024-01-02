@@ -1,8 +1,9 @@
 package net.edenor.minimap.xaeros;
 
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-
-@ConfigSerializable
 public class XaerosWorldConfig extends XaerosConfig {
     public boolean enabled = false;
+
+    public String toString() {
+        return "enabled: " + enabled + '\n' + super.toString();
+    }
 }

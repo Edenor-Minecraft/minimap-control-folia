@@ -1,8 +1,7 @@
 package net.edenor.minimap.jm.data;
 
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.bukkit.configuration.file.FileConfiguration;
 
-@ConfigSerializable
 public class JMWorldConfig {
     public String enabled = "false";
     public String teleportEnabled = "false";
@@ -35,5 +34,37 @@ public class JMWorldConfig {
         clone.mobRadarEnabled = this.mobRadarEnabled;
         clone.configVersion = this.configVersion;
         return clone;
+    }
+
+    public void loadFromConfig(FileConfiguration cfg){
+        this.enabled = cfg.getString("default-world-config.enabled");
+        this.teleportEnabled = cfg.getString("default-world-config.teleportEnabled");
+        this.renderRange = cfg.getString("default-world-config.renderRange");
+        this.surfaceMapping = cfg.getString("default-world-config.surfaceMapping");
+        this.topoMapping = cfg.getString("default-world-config.topoMapping");
+        this.biomeMapping = cfg.getString("default-world-config.biomeMapping");
+        this.caveMapping = cfg.getString("default-world-config.caveMapping");
+        this.radarEnabled = cfg.getString("default-world-config.radarEnabled");
+        this.playerRadarEnabled = cfg.getString("default-world-config.playerRadarEnabled");
+        this.villagerRadarEnabled = cfg.getString("default-world-config.villagerRadarEnabled");
+        this.animalRadarEnabled = cfg.getString("default-world-config.animalRadarEnabled");
+        this.mobRadarEnabled = cfg.getString("default-world-config.mobRadarEnabled");
+        this.configVersion = cfg.getString("default-world-config.configVersion");
+    }
+
+    public String toString(){
+        return "enabled: " + enabled + "\n" +
+                "configVersion: " + configVersion + "\n" +
+                "renderRange: " + renderRange + "\n" +
+                "teleportEnabled: " + teleportEnabled + "\n" +
+                "surfaceMapping: " + surfaceMapping + "\n" +
+                "topoMapping: " + topoMapping + "\n" +
+                "biomeMapping: " + biomeMapping + "\n" +
+                "caveMapping: " + caveMapping + "\n" +
+                "radarEnabled: " + radarEnabled + "\n" +
+                "playerRadarEnabled: " + playerRadarEnabled + "\n" +
+                "villagerRadarEnabled: " + villagerRadarEnabled + "\n" +
+                "animalRadarEnabled: " + animalRadarEnabled + "\n" +
+                "mobRadarEnabled: " + mobRadarEnabled;
     }
 }

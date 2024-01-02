@@ -1,0 +1,8 @@
+name: Minimap-Control-Folia
+main: net.edenor.minimap.MinimapPlugin
+version: ${version}
+api-version: 1.13
+folia-supported: true
+author: AltronMaxX
+description: >
+  Allows players to control how minimaps mods work per world.

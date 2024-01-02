@@ -11,7 +11,7 @@ public enum ServerPropType {
     private final int id;
     private static final Map<Integer, ServerPropType> map = new HashMap<>();
 
-    private ServerPropType(int id) {
+    ServerPropType(int id) {
         this.id = id;
     }
 
@@ -27,8 +27,7 @@ public enum ServerPropType {
         ServerPropType[] types = values();
         int len = types.length;
 
-        for(int i = 0; i < len; ++i) {
-            ServerPropType propertyType = types[i];
+        for (ServerPropType propertyType : types) {
             map.put(propertyType.id, propertyType);
         }
 

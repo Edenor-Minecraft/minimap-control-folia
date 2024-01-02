@@ -1,7 +1,6 @@
 plugins {
     `java-library`
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
 }
 
 val versionStr = (System.getenv("VERSION")?: "v1.0.0").removePrefix("v")
@@ -19,7 +18,7 @@ repositories {
     }
 }
 
-val javaTarget = 17 // Sponge targets a minimum of Java 17
+val javaTarget = 17
 java {
     sourceCompatibility = JavaVersion.toVersion(javaTarget)
     targetCompatibility = JavaVersion.toVersion(javaTarget)
@@ -35,12 +34,12 @@ dependencies {
     // Common Dependencies
     implementation("org.spongepowered:configurate-core:4.1.2")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
-    implementation("net.kyori:adventure-api:4.10.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.1")
-    implementation("net.kyori:adventure-text-minimessage:4.10.0")
+    implementation("net.kyori:adventure-api:4.15.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.2")
+    implementation("net.kyori:adventure-text-minimessage:4.15.0")
 
-    compileOnly("com.google.guava:guava:21.0")
-    compileOnly("com.google.code.gson:gson:2.8.0")
+    compileOnly("com.google.guava:guava:32.0.0-android")
+    compileOnly("com.google.code.gson:gson:2.8.9")
 
     implementation("dev.dewy:nbt:1.5.1")
 }
@@ -50,10 +49,6 @@ tasks {
         dependsOn(shadowJar)
     }
     shadowJar {
-        relocate("dev.dewy.nbt", "net.edenor.minimap.nbt")
-        relocate("org.spongepowered.configurate", "net.edenor.minimap.configurate")
-        relocate("net.kyori", "net.edenor.minimap.kyori")
-        relocate("io.leangen.geantyref", "net.edenor.minimap.geantyref")
         exclude("com/google/gson/**")
         exclude("org/apache/commons/**")
         exclude("org/yaml/snakeyaml/**")
@@ -66,13 +61,4 @@ tasks {
             }
         }
     }
-}
-
-bukkit {
-    name = "MinimapControl"
-    main = "net.edenor.minimap.MinimapPlugin"
-    authors = listOf("AltronMaxX")
-    description = "Control minimap settings from server-side software"
-
-    apiVersion = "1.13"
 }

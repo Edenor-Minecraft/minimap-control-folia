@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 public class MinimapWorld{
-    private World nativeWorld;
+    private final World nativeWorld;
 
     public MinimapWorld(World nativeWorld) {
         this.nativeWorld = nativeWorld;
