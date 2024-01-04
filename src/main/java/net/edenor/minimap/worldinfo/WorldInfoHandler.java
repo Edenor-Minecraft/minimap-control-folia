@@ -14,11 +14,14 @@ public class WorldInfoHandler implements MessageHandler {
 
     public static String WORLDINFO_CHANNEL = "worldinfo:world_id";
 
-    public WorldInfoHandler(MinimapPlugin plugin) {
-    }
+    public WorldInfoHandler() {}
 
     @Override
     public void onPluginMessage(String channel, MinimapPlayer player, byte[] message) {
+        /*if (!MinimapConfig.globalVoxelConfig.enabled){ //TODO Fix voxel map
+            player.sendPluginMessage("§3 §6 §3 §6 §3 §6 §d §3 §6 §3 §6 §3 §6 §e".getBytes(), WORLDINFO_CHANNEL);
+        }*/
+
         UUID worldId = MinimapConfig.getWorldConfig(player.getLocation().getWorld().getName()).worldId;
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeByte(0);

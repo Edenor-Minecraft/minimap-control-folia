@@ -19,7 +19,6 @@ public class MinimapConfig{
     public static JMWorldConfig defaultWorldConfig = new JMWorldConfig();
     public static VoxelMapConfig globalVoxelConfig = new VoxelMapConfig();
     private static final Map<String, WorldConfig> worlds = new HashMap<>();
-
     private static FileConfiguration config;
     public static void initConfig(){
         config = MinimapPlugin.getInstance().getConfig();

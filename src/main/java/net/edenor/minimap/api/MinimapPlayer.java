@@ -17,7 +17,7 @@ public class MinimapPlayer{
     }
 
     public void sendMessage(Component message) {
-        MinimapPlugin.getInstance().adventure().player(nativePlayer).sendMessage(message);
+        nativePlayer.sendMessage(message);
     }
 
     public void teleport(MinimapLocation location) {

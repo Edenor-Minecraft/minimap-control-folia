@@ -25,7 +25,6 @@ public enum ServerPropType {
 
     static {
         ServerPropType[] types = values();
-        int len = types.length;
 
         for (ServerPropType propertyType : types) {
             map.put(propertyType.id, propertyType);

@@ -20,8 +20,7 @@ public class XaerosHandler implements MessageHandler {
     public static String XAEROS_MAP_CHANNEL = "xaeroworldmap:main";
 
 
-    public XaerosHandler(MinimapPlugin plugin) {
-    }
+    public XaerosHandler() {}
 
     public void sendXaerosHandshake(MinimapPlayer player) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();

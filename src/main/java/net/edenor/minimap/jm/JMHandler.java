@@ -92,7 +92,7 @@ public class JMHandler implements MessageHandler {
         }
     }
 
-    public void handleAdminSave(MinimapPlayer player, byte[] message, String replyChannel, int replyByte) {
+    public void handleAdminSave(MinimapPlayer player, byte[] message, String replyChannel) {
         if (!player.hasPermission("minimap.jm.admin")) return;
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
@@ -163,14 +163,14 @@ public class JMHandler implements MessageHandler {
             case "version" -> handleVersion(player, message, channel);
             case "perm_req" -> handlePerm(player.nativePlayer, message, channel, 0);
             case "admin_req" -> handleAdminReq(player, message, channel, 0);
-            case "admin_save" -> handleAdminSave(player, message, channel, 0);
+            case "admin_save" -> handleAdminSave(player, message, channel);
             case "teleport_req" -> handleTeleport(player, message, channel, 0);
             case "common" -> {
                 ByteArrayDataInput in = ByteStreams.newDataInput(message);
                 byte type = in.readByte();
                 switch (type) {
                     case 0 -> handleAdminReq(player, message, channel, type);
-                    case 1 -> handleAdminSave(player, message, channel, type);
+                    case 1 -> handleAdminSave(player, message, channel);
                     case 2 -> handlePerm(player.nativePlayer, message, channel, type);
                     case 4 -> handleTeleport(player, message, channel, type);
                     case 5 -> handleMPOptions(player, message, channel, type);
