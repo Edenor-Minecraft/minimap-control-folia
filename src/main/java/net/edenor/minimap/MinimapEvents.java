@@ -27,11 +27,17 @@ public class MinimapEvents implements @NotNull Listener {
 
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent event) {
-        handlePackets(new MinimapPlayer(event.getPlayer()));
+        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
+                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 20L);
+        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
+                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 100L); //Resend later
+        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
+                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 200L); //Resend later
     }
 
     public void handlePackets(MinimapPlayer player) {
         plugin.xaerosHandler.sendXaerosHandshake(player);
         plugin.xaerosHandler.sendXaerosConfig(player);
+        plugin.voxelHandler.sendSettings(player);
     }
 }

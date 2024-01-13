@@ -3,7 +3,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-val versionStr = (System.getenv("VERSION")?: "v1.0.0").removePrefix("v")
+val versionStr = "1.1.0"
 
 group = "net.edenor.minimap"
 version = versionStr

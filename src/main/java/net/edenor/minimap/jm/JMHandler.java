@@ -1,5 +1,6 @@
 package net.edenor.minimap.jm;
 
+import net.edenor.minimap.DefaultWorldConfig;
 import net.edenor.minimap.MinimapPlugin;
 import net.edenor.minimap.MinimapConfig;
 import net.edenor.minimap.api.MessageHandler;
@@ -67,7 +68,7 @@ public class JMHandler implements MessageHandler {
         HashMap<String, String> payloads = new HashMap<>();
 
         payloads.put("GLOBAL", gson.toJson(MinimapConfig.globalJourneymapConfig));
-        payloads.put("DEFAULT", gson.toJson(MinimapConfig.defaultWorldConfig));
+        payloads.put("DEFAULT", gson.toJson(MinimapConfig.defaultWorldConfig.defaultJMWorldConfig));
 
         for (World world : plugin.getServer().getWorlds()){
             payloads.put(world.getName(),gson.toJson(MinimapConfig.getWorldConfig(world.getName())));
@@ -113,7 +114,7 @@ public class JMHandler implements MessageHandler {
                 worldConfig.journeymapConfig = newConfig;
                 System.out.println(dimension);
             } else {
-                MinimapConfig.defaultWorldConfig = newConfig;
+                MinimapConfig.defaultWorldConfig.defaultJMWorldConfig = newConfig;
             }
         }
         plugin.saveConfig();

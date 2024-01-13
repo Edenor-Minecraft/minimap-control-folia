@@ -1,21 +1,28 @@
 package net.edenor.minimap.xaeros;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import net.edenor.minimap.MinimapConfig;
+import org.bukkit.configuration.MemoryConfiguration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class XaerosConfig {
     public boolean caveMode = true;
     public boolean netherCaveMode = true;
     public boolean radar = true;
 
-    public void loadFromConfig(FileConfiguration cfg){
-        this.caveMode = cfg.getBoolean("global-xaeros-config.caveMode");
-        this.netherCaveMode = cfg.getBoolean("global-xaeros-config.netherCaveMode");
-        this.radar = cfg.getBoolean("global-xaeros-config.radar");
+    public void loadFromConfig(){
+        this.caveMode = (boolean) MinimapConfig.get("global-xaeros-config.caveMode", caveMode);
+        this.netherCaveMode = (boolean) MinimapConfig.get("global-xaeros-config.netherCaveMode", netherCaveMode);
+        this.radar = (boolean) MinimapConfig.get("global-xaeros-config.radar", radar);
     }
 
-    public String toString(){
-        return "caveMode: " + caveMode + "\n" +
-                "netherCaveMode: " + netherCaveMode + "\n" +
-                "radar: " + radar;
+    public Map<String, Object> toMap() { //global-xaeros-config
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("caveMode", caveMode);
+        ret.put("netherCaveMode", netherCaveMode);
+        ret.put("radar", radar);
+
+        return ret;
     }
 }

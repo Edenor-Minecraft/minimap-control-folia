@@ -1,6 +1,10 @@
 package net.edenor.minimap.jm.data;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import net.edenor.minimap.MinimapConfig;
+import org.bukkit.configuration.MemoryConfiguration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class JMConfig {
     public String journeymapEnabled = "true";
@@ -57,55 +61,58 @@ public class JMConfig {
         return clone;
     }
 
-    public void loadFromConfig(FileConfiguration cfg){
-        this.journeymapEnabled = cfg.getString("global-journeymap-config.journeymapEnabled");
-        this.useWorldId = cfg.getString("global-journeymap-config.useWorldId");
-        this.viewOnlyServerProperties = cfg.getString("global-journeymap-config.viewOnlyServerProperties");
-        this.allowMultiplayerSettings = cfg.getString("global-journeymap-config.allowMultiplayerSettings");
-        this.worldPlayerRadar = cfg.getString("global-journeymap-config.worldPlayerRadar");
-        this.worldPlayerRadarUpdateTime = cfg.getString("global-journeymap-config.worldPlayerRadarUpdateTime");
-        this.seeUndergroundPlayers = cfg.getString("global-journeymap-config.seeUndergroundPlayers");
-        this.hideOps = cfg.getString("global-journeymap-config.hideOps");
-        this.hideSpectators = cfg.getString("global-journeymap-config.hideSpectators");
-        this.allowDeathPoints = cfg.getString("global-journeymap-config.allowDeathPoints");
-        this.showInGameBeacons = cfg.getString("global-journeymap-config.showInGameBeacons");
-        this.allowWaypoints = cfg.getString("global-journeymap-config.allowWaypoints");
-        this.teleportEnabled = cfg.getString("global-journeymap-config.teleportEnabled");
-        this.renderRange = cfg.getString("global-journeymap-config.renderRange");
-        this.surfaceMapping = cfg.getString("global-journeymap-config.surfaceMapping");
-        this.topoMapping = cfg.getString("global-journeymap-config.topoMapping");
-        this.biomeMapping = cfg.getString("global-journeymap-config.biomeMapping");
-        this.caveMapping = cfg.getString("global-journeymap-config.caveMapping");
-        this.radarEnabled = cfg.getString("global-journeymap-config.radarEnabled");
-        this.playerRadarEnabled = cfg.getString("global-journeymap-config.playerRadarEnabled");
-        this.villagerRadarEnabled = cfg.getString("global-journeymap-config.villagerRadarEnabled");
-        this.animalRadarEnabled = cfg.getString("global-journeymap-config.animalRadarEnabled");
-        this.mobRadarEnabled = cfg.getString("global-journeymap-config.mobRadarEnabled");
+    public void loadFromConfig(){
+        this.journeymapEnabled = (String) MinimapConfig.get("global-journeymap-config.journeymapEnabled", journeymapEnabled);
+        this.useWorldId = (String) MinimapConfig.get("global-journeymap-config.useWorldId", useWorldId);
+        this.viewOnlyServerProperties = (String) MinimapConfig.get("global-journeymap-config.viewOnlyServerProperties", viewOnlyServerProperties);
+        this.allowMultiplayerSettings = (String) MinimapConfig.get("global-journeymap-config.allowMultiplayerSettings", allowMultiplayerSettings);
+        this.worldPlayerRadar = (String) MinimapConfig.get("global-journeymap-config.worldPlayerRadar", worldPlayerRadar);
+        this.worldPlayerRadarUpdateTime = (String) MinimapConfig.get("global-journeymap-config.worldPlayerRadarUpdateTime", worldPlayerRadarUpdateTime);
+        this.seeUndergroundPlayers = (String) MinimapConfig.get("global-journeymap-config.seeUndergroundPlayers", seeUndergroundPlayers);
+        this.hideOps = (String) MinimapConfig.get("global-journeymap-config.hideOps", hideOps);
+        this.hideSpectators = (String) MinimapConfig.get("global-journeymap-config.hideSpectators", hideSpectators);
+        this.allowDeathPoints = (String) MinimapConfig.get("global-journeymap-config.allowDeathPoints", allowDeathPoints);
+        this.showInGameBeacons = (String) MinimapConfig.get("global-journeymap-config.showInGameBeacons", showInGameBeacons);
+        this.allowWaypoints = (String) MinimapConfig.get("global-journeymap-config.allowWaypoints", allowWaypoints);
+        this.teleportEnabled = (String) MinimapConfig.get("global-journeymap-config.teleportEnabled", teleportEnabled);
+        this.renderRange = (String) MinimapConfig.get("global-journeymap-config.renderRange", renderRange);
+        this.surfaceMapping = (String) MinimapConfig.get("global-journeymap-config.surfaceMapping", surfaceMapping);
+        this.topoMapping = (String) MinimapConfig.get("global-journeymap-config.topoMapping", topoMapping);
+        this.biomeMapping = (String) MinimapConfig.get("global-journeymap-config.biomeMapping", biomeMapping);
+        this.caveMapping = (String) MinimapConfig.get("global-journeymap-config.caveMapping", caveMapping);
+        this.radarEnabled = (String) MinimapConfig.get("global-journeymap-config.radarEnabled", radarEnabled);
+        this.playerRadarEnabled = (String) MinimapConfig.get("global-journeymap-config.playerRadarEnabled", playerRadarEnabled);
+        this.villagerRadarEnabled = (String) MinimapConfig.get("global-journeymap-config.villagerRadarEnabled", villagerRadarEnabled);
+        this.animalRadarEnabled = (String) MinimapConfig.get("global-journeymap-config.animalRadarEnabled", animalRadarEnabled);
+        this.mobRadarEnabled = (String) MinimapConfig.get("global-journeymap-config.mobRadarEnabled", mobRadarEnabled);
     }
 
-    public String toString(){
-        return "journeymapEnabled: " + journeymapEnabled + "\n" +
-                "useWorldId: " + useWorldId + "\n" +
-                "viewOnlyServerProperties: " + viewOnlyServerProperties + "\n" +
-                "allowMultiplayerSettings: " + allowMultiplayerSettings + "\n" +
-                "worldPlayerRadar: " + worldPlayerRadar + "\n" +
-                "worldPlayerRadarUpdateTime: " + worldPlayerRadarUpdateTime + "\n" +
-                "seeUndergroundPlayers: " + seeUndergroundPlayers + "\n" +
-                "hideOps: " + hideOps + "\n" +
-                "hideSpectators: " + hideSpectators + "\n" +
-                "allowDeathPoints: " + allowDeathPoints + "\n" +
-                "showInGameBeacons: " + showInGameBeacons + "\n" +
-                "allowWaypoints: " + allowWaypoints + "\n" +
-                "renderRange: " + renderRange + "\n" +
-                "teleportEnabled: " + teleportEnabled + "\n" +
-                "surfaceMapping: " + surfaceMapping + "\n" +
-                "topoMapping: " + topoMapping + "\n" +
-                "biomeMapping: " + biomeMapping + "\n" +
-                "caveMapping: " + caveMapping + "\n" +
-                "radarEnabled: " + radarEnabled + "\n" +
-                "playerRadarEnabled: " + playerRadarEnabled + "\n" +
-                "villagerRadarEnabled: " + villagerRadarEnabled + "\n" +
-                "animalRadarEnabled: " + animalRadarEnabled + "\n" +
-                "mobRadarEnabled: " + mobRadarEnabled;
+    public Map<String, String> toMap() {
+        Map<String, String> ret = new HashMap<>(); //global-journeymap-config
+        ret.put("journeymapEnabled", journeymapEnabled);
+        ret.put("useWorldId", useWorldId);
+        ret.put("viewOnlyServerProperties", viewOnlyServerProperties);
+        ret.put("allowMultiplayerSettings", allowMultiplayerSettings);
+        ret.put("worldPlayerRadar", worldPlayerRadar);
+        ret.put("worldPlayerRadarUpdateTime", worldPlayerRadarUpdateTime);
+        ret.put(".seeUndergroundPlayers", seeUndergroundPlayers);
+        ret.put("hideOps", hideOps);
+        ret.put("hideSpectators", hideSpectators);
+        ret.put("allowDeathPoints", allowDeathPoints);
+        ret.put("showInGameBeacons", showInGameBeacons);
+        ret.put("allowWaypoints", allowWaypoints);
+        ret.put("teleportEnabled", teleportEnabled);
+        ret.put("renderRange", renderRange);
+        ret.put("surfaceMapping", surfaceMapping);
+        ret.put("topoMapping", topoMapping);
+        ret.put("biomeMapping", biomeMapping);
+        ret.put("caveMapping", caveMapping);
+        ret.put("radarEnabled", radarEnabled);
+        ret.put("playerRadarEnabled", playerRadarEnabled);
+        ret.put("villagerRadarEnabled", villagerRadarEnabled);
+        ret.put("animalRadarEnabled", animalRadarEnabled);
+        ret.put("mobRadarEnabled", mobRadarEnabled);
+
+        return ret;
     }
 }

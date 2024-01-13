@@ -1,6 +1,9 @@
 package net.edenor.minimap.jm.data;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import net.edenor.minimap.MinimapConfig;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class JMWorldConfig {
     public String enabled = "false";
@@ -36,35 +39,57 @@ public class JMWorldConfig {
         return clone;
     }
 
-    public void loadFromConfig(FileConfiguration cfg){
-        this.enabled = cfg.getString("default-world-config.enabled");
-        this.teleportEnabled = cfg.getString("default-world-config.teleportEnabled");
-        this.renderRange = cfg.getString("default-world-config.renderRange");
-        this.surfaceMapping = cfg.getString("default-world-config.surfaceMapping");
-        this.topoMapping = cfg.getString("default-world-config.topoMapping");
-        this.biomeMapping = cfg.getString("default-world-config.biomeMapping");
-        this.caveMapping = cfg.getString("default-world-config.caveMapping");
-        this.radarEnabled = cfg.getString("default-world-config.radarEnabled");
-        this.playerRadarEnabled = cfg.getString("default-world-config.playerRadarEnabled");
-        this.villagerRadarEnabled = cfg.getString("default-world-config.villagerRadarEnabled");
-        this.animalRadarEnabled = cfg.getString("default-world-config.animalRadarEnabled");
-        this.mobRadarEnabled = cfg.getString("default-world-config.mobRadarEnabled");
-        this.configVersion = cfg.getString("default-world-config.configVersion");
+    public JMWorldConfig(){
+        loadDefault();
     }
 
-    public String toString(){
-        return "enabled: " + enabled + "\n" +
-                "configVersion: " + configVersion + "\n" +
-                "renderRange: " + renderRange + "\n" +
-                "teleportEnabled: " + teleportEnabled + "\n" +
-                "surfaceMapping: " + surfaceMapping + "\n" +
-                "topoMapping: " + topoMapping + "\n" +
-                "biomeMapping: " + biomeMapping + "\n" +
-                "caveMapping: " + caveMapping + "\n" +
-                "radarEnabled: " + radarEnabled + "\n" +
-                "playerRadarEnabled: " + playerRadarEnabled + "\n" +
-                "villagerRadarEnabled: " + villagerRadarEnabled + "\n" +
-                "animalRadarEnabled: " + animalRadarEnabled + "\n" +
-                "mobRadarEnabled: " + mobRadarEnabled;
+    public void loadDefault(){
+        this.enabled = (String) MinimapConfig.get("default-world-config.jm.enabled", enabled);
+        this.teleportEnabled = (String) MinimapConfig.get("default-world-config.jm.teleportEnabled", teleportEnabled);
+        this.renderRange = (String) MinimapConfig.get("default-world-config.jm.renderRange", renderRange);
+        this.surfaceMapping = (String) MinimapConfig.get("default-world-config.jm.surfaceMapping", surfaceMapping);
+        this.topoMapping = (String) MinimapConfig.get("default-world-config.jm.topoMapping", topoMapping);
+        this.biomeMapping = (String) MinimapConfig.get("default-world-config.jm.biomeMapping", biomeMapping);
+        this.caveMapping = (String) MinimapConfig.get("default-world-config.jm.caveMapping", caveMapping);
+        this.radarEnabled = (String) MinimapConfig.get("default-world-config.jm.radarEnabled", radarEnabled);
+        this.playerRadarEnabled = (String) MinimapConfig.get("default-world-config.jm.playerRadarEnabled", playerRadarEnabled);
+        this.villagerRadarEnabled = (String) MinimapConfig.get("default-world-config.jm.villagerRadarEnabled", villagerRadarEnabled);
+        this.animalRadarEnabled = (String) MinimapConfig.get("default-world-config.jm.animalRadarEnabled", animalRadarEnabled);
+        this.mobRadarEnabled = (String) MinimapConfig.get("default-world-config.jm.mobRadarEnabled", mobRadarEnabled);
+        this.configVersion = (String) MinimapConfig.get("default-world-config.jm.configVersion", configVersion);
+    }
+
+    public void loadFromConfig(String worldName){
+        this.enabled = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.enabled", enabled);
+        this.teleportEnabled = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.teleportEnabled", teleportEnabled);
+        this.renderRange = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.renderRange", renderRange);
+        this.surfaceMapping = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.surfaceMapping", surfaceMapping);
+        this.topoMapping = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.topoMapping", topoMapping);
+        this.biomeMapping = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.biomeMapping", biomeMapping);
+        this.caveMapping = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.caveMapping", caveMapping);
+        this.radarEnabled = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.radarEnabled", radarEnabled);
+        this.playerRadarEnabled = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.playerRadarEnabled", playerRadarEnabled);
+        this.villagerRadarEnabled = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.villagerRadarEnabled", villagerRadarEnabled);
+        this.animalRadarEnabled = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.animalRadarEnabled", animalRadarEnabled);
+        this.mobRadarEnabled = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.mobRadarEnabled", mobRadarEnabled);
+        this.configVersion = (String) MinimapConfig.get("worlds." + worldName + ".journeymapConfig.configVersion", configVersion);
+    }
+
+    public Map<String, String> toMap() { //default-world-config.jm
+        Map<String, String> ret = new HashMap<>();
+        ret.put("enabled", enabled);
+        ret.put("teleportEnabled", teleportEnabled);
+        ret.put("renderRange", renderRange);
+        ret.put("surfaceMapping", surfaceMapping);
+        ret.put("topoMapping", topoMapping);
+        ret.put("biomeMapping", biomeMapping);
+        ret.put("caveMapping", caveMapping);
+        ret.put("radarEnabled", radarEnabled);
+        ret.put("playerRadarEnabled", playerRadarEnabled);
+        ret.put("villagerRadarEnabled", villagerRadarEnabled);
+        ret.put("animalRadarEnabled", animalRadarEnabled);
+        ret.put("mobRadarEnabled", mobRadarEnabled);
+
+        return ret;
     }
 }

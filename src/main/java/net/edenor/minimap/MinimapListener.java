@@ -19,7 +19,8 @@ public class MinimapListener implements PluginMessageListener {
             "journeymap:common",
             "worldinfo:world_id",
             "xaerominimap:main",
-            "xaeroworldmap:main"
+            "xaeroworldmap:main",
+            "voxelmap:settings"
     );
 
     private MinimapPlugin plugin;

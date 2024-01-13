@@ -1,6 +1,7 @@
 package net.edenor.minimap;
 
 import net.edenor.minimap.jm.JMHandler;
+import net.edenor.minimap.voxel.VoxelHandler;
 import net.edenor.minimap.worldinfo.WorldInfoHandler;
 import net.edenor.minimap.xaeros.XaerosHandler;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -11,6 +12,7 @@ public class MinimapPlugin extends JavaPlugin {
     public final JMHandler jmHandler = new JMHandler(this);
     public final XaerosHandler xaerosHandler = new XaerosHandler();
     public final WorldInfoHandler worldInfoHandler = new WorldInfoHandler();
+    public final VoxelHandler voxelHandler = new VoxelHandler(this);
 
     public MinimapPlugin plugin;
 
@@ -31,13 +33,5 @@ public class MinimapPlugin extends JavaPlugin {
     }
     public static MinimapPlugin getInstance() {
         return instance;
-    }
-
-    public void saveConfig() {
-        try {
-            MinimapConfig.saveConfig();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
