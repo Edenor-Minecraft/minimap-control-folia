@@ -2,7 +2,7 @@ package net.edenor.minimap;
 
 import net.edenor.minimap.jm.data.JMWorldConfig;
 import net.edenor.minimap.voxel.data.VoxelWorldConfig;
-import net.edenor.minimap.xaeros.XaerosWorldConfig;
+import net.edenor.minimap.xaeros.data.XaerosWorldConfig;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class DefaultWorldConfig {

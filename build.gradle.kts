@@ -3,7 +3,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-val versionStr = "1.1.0"
+val versionStr = "1.2.0"
 
 group = "net.edenor.minimap"
 version = versionStr
@@ -32,8 +32,6 @@ dependencies {
     compileOnly("dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT")
 
     // Common Dependencies
-    implementation("org.spongepowered:configurate-core:4.1.2")
-    implementation("org.spongepowered:configurate-yaml:4.1.2")
     implementation("net.kyori:adventure-api:4.15.0")
     implementation("net.kyori:adventure-text-minimessage:4.15.0")
 
@@ -44,6 +42,11 @@ dependencies {
 }
 
 tasks {
+    processResources {
+        outputs.upToDateWhen { false }
+        eachFile { expand("version" to project.version) }
+    }
+
     build {
         dependsOn(shadowJar)
     }

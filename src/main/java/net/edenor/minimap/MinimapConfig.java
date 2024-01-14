@@ -4,10 +4,9 @@ import net.edenor.minimap.jm.data.JMConfig;
 import net.edenor.minimap.jm.data.JMWorldConfig;
 import net.edenor.minimap.voxel.data.VoxelConfig;
 import net.edenor.minimap.voxel.data.VoxelWorldConfig;
-import net.edenor.minimap.xaeros.XaerosConfig;
-import net.edenor.minimap.xaeros.XaerosWorldConfig;
+import net.edenor.minimap.xaeros.data.XaerosConfig;
+import net.edenor.minimap.xaeros.data.XaerosWorldConfig;
 import org.bukkit.World;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class MinimapConfig{
     public static void addWorld(World world){
         if (config.contains("worlds." + world.getName())){
             WorldConfig worldConfig = new WorldConfig();
-            worldConfig.fromConfig(config, world.getName());
+            worldConfig.fromConfig(world);
             worlds.put(world.getName(), worldConfig);
         }
         else {
@@ -82,13 +81,14 @@ public class MinimapConfig{
         WorldConfig conf = worlds.get(world);
 
         if (conf == null) {
-            conf = new WorldConfig();
+            throw new RuntimeException("This world does not exists!");
+            /*conf = new WorldConfig();
             worlds.put(world, conf);
             try {
                 saveConfig();
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            }
+            }*/
         }
 
         return conf;
@@ -100,11 +100,11 @@ public class MinimapConfig{
         public XaerosWorldConfig xaerosConfig = new XaerosWorldConfig();
         public VoxelWorldConfig voxelWorldConfig = new VoxelWorldConfig();
 
-        public void fromConfig(FileConfiguration cfg, String worldName) {
-            this.worldId = cfg.getObject("worlds." + worldName + ".worldId", UUID.class);
-            this.journeymapConfig.loadFromConfig(worldName);
-            this.xaerosConfig.loadFromConfig(worldName);
-            this.voxelWorldConfig.loadFromConfig(worldName);
+        public void fromConfig(World world) {
+            this.worldId = world.getUID();
+            this.journeymapConfig.loadFromConfig(world.getName());
+            this.xaerosConfig.loadFromConfig(world.getName());
+            this.voxelWorldConfig.loadFromConfig(world.getName());
         }
 
         public Map<String, Object> toMap() {

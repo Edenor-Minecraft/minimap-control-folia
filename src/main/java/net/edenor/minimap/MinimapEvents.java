@@ -1,15 +1,21 @@
 package net.edenor.minimap;
 
-import net.edenor.minimap.api.MinimapPlayer;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class MinimapEvents implements @NotNull Listener {
+import java.util.HashMap;
+import java.util.Map;
 
-    private MinimapPlugin plugin;
+public class MinimapEvents implements Listener {
+
+    private final MinimapPlugin plugin;
+    private final Map<String, ScheduledTask> playerTaskMap = new HashMap<>();
 
     public MinimapEvents(MinimapPlugin plugin){
         this.plugin = plugin;
@@ -18,24 +24,28 @@ public class MinimapEvents implements @NotNull Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
-                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 20L);
-        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
-                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 100L); //Resend later
-        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
-                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 200L); //Resend later
+                v->this.handlePackets(event.getPlayer()), 20L);
+        ScheduledTask task = this.plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(this.plugin,
+                (v) -> this.handlePackets(event.getPlayer()), 40L, 40L);
+        this.playerTaskMap.put(event.getPlayer().getName(), task);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        ScheduledTask task = this.playerTaskMap.get(event.getPlayer().getName());
+        if (task != null) {
+            this.playerTaskMap.get(event.getPlayer().getName()).cancel();
+            this.playerTaskMap.remove(event.getPlayer().getName());
+        }
+
     }
 
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent event) {
-        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
-                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 20L);
-        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
-                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 100L); //Resend later
-        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin,
-                v->this.handlePackets(new MinimapPlayer(event.getPlayer())), 200L); //Resend later
+        this.handlePackets(event.getPlayer());
     }
 
-    public void handlePackets(MinimapPlayer player) {
+    public void handlePackets(@NotNull Player player) {
         plugin.xaerosHandler.sendXaerosHandshake(player);
         plugin.xaerosHandler.sendXaerosConfig(player);
         plugin.voxelHandler.sendSettings(player);

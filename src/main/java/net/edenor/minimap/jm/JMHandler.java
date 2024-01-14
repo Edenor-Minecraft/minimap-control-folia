@@ -1,11 +1,7 @@
 package net.edenor.minimap.jm;
 
-import net.edenor.minimap.DefaultWorldConfig;
 import net.edenor.minimap.MinimapPlugin;
 import net.edenor.minimap.MinimapConfig;
-import net.edenor.minimap.api.MessageHandler;
-import net.edenor.minimap.api.MinimapPlayer;
-import net.edenor.minimap.api.MinimapWorld;
 import net.edenor.minimap.jm.data.JMConfig;
 import net.edenor.minimap.jm.data.JMVersion;
 import net.edenor.minimap.jm.data.JMWorldConfig;
@@ -16,6 +12,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -23,18 +20,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class JMHandler implements MessageHandler {
+public class JMHandler{
     private final MinimapPlugin plugin;
 
     public JMHandler(MinimapPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void handleMPOptions(MinimapPlayer player, byte[] message, String replyChannel, int replyByte) {
+    public void handleMPOptions(Player player) {
         player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Multiplayer options are not implemented."));
     }
 
-    public void handleTeleport(MinimapPlayer player, byte[] message, String replyChannel, int replyByte) {
+    public void handleTeleport(Player player, byte[] message) {
         if (!player.hasPermission("minimap.jm.teleport")) {
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You don't have permission to teleport."));
         }
@@ -52,10 +49,10 @@ public class JMHandler implements MessageHandler {
             return;
         }
 
-        player.teleport(new MinimapWorld(world.get()).getLocation(x, y, z));
+        player.teleportAsync(new Location(world.get(), x, y, z));
     }
 
-    public void handleAdminReq(MinimapPlayer player, byte[] message, String replyChannel, int replyByte) {
+    public void handleAdminReq(Player player, byte[] message, String replyChannel, int replyByte) {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         in.readByte();
         in.readByte();
@@ -89,11 +86,11 @@ public class JMHandler implements MessageHandler {
                 NetworkUtils.writeUtf(ent.getKey(), out);
             }
             NetworkUtils.writeUtf(ent.getValue(), out);
-            player.sendPluginMessage(out.toByteArray(), replyChannel);
+            player.sendPluginMessage(plugin, replyChannel, out.toByteArray());
         }
     }
 
-    public void handleAdminSave(MinimapPlayer player, byte[] message, String replyChannel) {
+    public void handleAdminSave(Player player, byte[] message, String replyChannel) {
         if (!player.hasPermission("minimap.jm.admin")) return;
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
@@ -105,8 +102,7 @@ public class JMHandler implements MessageHandler {
 
         Gson gson = new Gson();
         if (type == 1) {
-            JMConfig newConfig = gson.fromJson(payload, JMConfig.class);
-            MinimapConfig.globalJourneymapConfig = newConfig;
+            MinimapConfig.globalJourneymapConfig = gson.fromJson(payload, JMConfig.class);
         } else if (type == 2 || type == 3) {
             JMWorldConfig newConfig = gson.fromJson(payload, JMWorldConfig.class);
             if (type == 3) {
@@ -128,19 +124,19 @@ public class JMHandler implements MessageHandler {
 
         String finalPermChannel = permChannel;
         int finalReplyInt = replyInt;
-        plugin.getServer().getOnlinePlayers().forEach(p->handlePerm(p, new byte[0], finalPermChannel, finalReplyInt));
+        plugin.getServer().getOnlinePlayers().forEach(p->handlePerm(p, finalPermChannel, finalReplyInt));
     }
 
-    public void handleVersion(MinimapPlayer player, byte[] message, String replyChannel) {
+    public void handleVersion(Player player, String replyChannel) {
         Gson gson = new Gson();
         String payload = gson.toJson(new JMVersion());
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeByte(0);
         NetworkUtils.writeUtf(payload, out);
-        player.sendPluginMessage(out.toByteArray(), replyChannel);
+        player.sendPluginMessage(plugin, replyChannel, out.toByteArray());
     }
 
-    public void handlePerm(Player player, byte[] message, String replyChannel, int replyByte) {
+    public void handlePerm(Player player, String replyChannel, int replyByte) {
         JMWorldConfig worldConfig = MinimapConfig.getWorldConfig(player.getLocation().getWorld().getName()).journeymapConfig;
         JMConfig config = MinimapConfig.globalJourneymapConfig;
         if (worldConfig != null) {
@@ -158,23 +154,22 @@ public class JMHandler implements MessageHandler {
         player.sendPluginMessage(MinimapPlugin.getInstance().plugin, replyChannel, out.toByteArray());
     }
 
-    @Override
-    public void onPluginMessage(String channel, MinimapPlayer player, byte[] message) {
+    public void onPluginMessage(String channel, Player player, byte[] message) {
         switch (channel.split(":")[1]) {
-            case "version" -> handleVersion(player, message, channel);
-            case "perm_req" -> handlePerm(player.nativePlayer, message, channel, 0);
+            case "version" -> handleVersion(player, channel);
+            case "perm_req" -> handlePerm(player, channel, 0);
             case "admin_req" -> handleAdminReq(player, message, channel, 0);
             case "admin_save" -> handleAdminSave(player, message, channel);
-            case "teleport_req" -> handleTeleport(player, message, channel, 0);
+            case "teleport_req" -> handleTeleport(player, message);
             case "common" -> {
                 ByteArrayDataInput in = ByteStreams.newDataInput(message);
                 byte type = in.readByte();
                 switch (type) {
                     case 0 -> handleAdminReq(player, message, channel, type);
                     case 1 -> handleAdminSave(player, message, channel);
-                    case 2 -> handlePerm(player.nativePlayer, message, channel, type);
-                    case 4 -> handleTeleport(player, message, channel, type);
-                    case 5 -> handleMPOptions(player, message, channel, type);
+                    case 2 -> handlePerm(player, channel, type);
+                    case 4 -> handleTeleport(player, message);
+                    case 5 -> handleMPOptions(player);
                 }
             }
         }

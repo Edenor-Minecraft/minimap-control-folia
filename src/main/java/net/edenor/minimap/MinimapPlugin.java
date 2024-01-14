@@ -6,14 +6,12 @@ import net.edenor.minimap.worldinfo.WorldInfoHandler;
 import net.edenor.minimap.xaeros.XaerosHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
 public class MinimapPlugin extends JavaPlugin {
     private static MinimapPlugin instance;
     public final JMHandler jmHandler = new JMHandler(this);
     public final XaerosHandler xaerosHandler = new XaerosHandler();
     public final WorldInfoHandler worldInfoHandler = new WorldInfoHandler();
-    public final VoxelHandler voxelHandler = new VoxelHandler(this);
-
+    public final VoxelHandler voxelHandler = new VoxelHandler();
     public MinimapPlugin plugin;
 
     @Override

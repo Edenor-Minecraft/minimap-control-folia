@@ -1,7 +1,6 @@
 package net.edenor.minimap.jm.data;
 
 import net.edenor.minimap.MinimapConfig;
-import org.bukkit.configuration.MemoryConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;

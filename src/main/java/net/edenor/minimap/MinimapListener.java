@@ -1,6 +1,5 @@
 package net.edenor.minimap;
 
-import net.edenor.minimap.api.MinimapPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +22,7 @@ public class MinimapListener implements PluginMessageListener {
             "voxelmap:settings"
     );
 
-    private MinimapPlugin plugin;
+    private final MinimapPlugin plugin;
 
     public MinimapListener(MinimapPlugin plugin){
         this.plugin = plugin;
@@ -36,16 +35,16 @@ public class MinimapListener implements PluginMessageListener {
         plugin.getServer().getMessenger().registerIncomingPluginChannel(MinimapPlugin.getInstance(), channel, this);
     }
 
-    public void onPluginMessage(String channel, MinimapPlayer player, byte[] message) {
+    public void onPluginMessage(String channel, Player player, byte[] message) {
         switch (channel.split(":")[0]) {
             case "journeymap" -> plugin.jmHandler.onPluginMessage(channel, player, message);
-            case "xaerominimap", "xaeroworldmap" -> plugin.xaerosHandler.onPluginMessage(channel, player, message);
-            case "worldinfo" -> plugin.worldInfoHandler.onPluginMessage(channel, player, message);
+            case "xaerominimap", "xaeroworldmap" -> plugin.xaerosHandler.onPluginMessage(player, message);
+            case "worldinfo" -> plugin.worldInfoHandler.onPluginMessage(player);
         }
     }
 
     @Override
-    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, @NotNull byte[] message) {
-        this.onPluginMessage(channel, new MinimapPlayer(player), message);
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
+        this.onPluginMessage(channel, player, message);
     }
 }
