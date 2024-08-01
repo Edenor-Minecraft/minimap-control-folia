@@ -13,6 +13,8 @@ public class MinimapPlugin extends JavaPlugin {
     public final WorldInfoHandler worldInfoHandler = new WorldInfoHandler();
     public final VoxelHandler voxelHandler = new VoxelHandler();
     public MinimapPlugin plugin;
+    public ViaHook viaHook;
+    public boolean viaHooked;
 
     @Override
     public void onEnable() {
@@ -21,6 +23,12 @@ public class MinimapPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MinimapEvents(this), this);
         MinimapConfig.initConfig();
         new MinimapListener(this);
+        try {
+            this.viaHook = new ViaHook();
+            this.viaHooked = true;
+        } catch (ClassNotFoundException | NoClassDefFoundError e ) {
+            // failed to hook viaversion. Expected if viaversion isn't installed.
+        }
     }
 
     @Override
@@ -29,6 +37,7 @@ public class MinimapPlugin extends JavaPlugin {
         // Plugin shutdown logic
         getLogger().info("Disabled");
     }
+
     public static MinimapPlugin getInstance() {
         return instance;
     }

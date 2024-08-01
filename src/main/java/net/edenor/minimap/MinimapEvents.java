@@ -37,7 +37,7 @@ public class MinimapEvents implements Listener {
             this.playerTaskMap.get(event.getPlayer().getName()).cancel();
             this.playerTaskMap.remove(event.getPlayer().getName());
         }
-
+        MinimapPlugin.getInstance().jmHandler.playerLeft(event.getPlayer());
     }
 
     @EventHandler

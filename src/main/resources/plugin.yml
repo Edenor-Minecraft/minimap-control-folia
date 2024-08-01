@@ -6,3 +6,4 @@ folia-supported: true
 author: AltronMaxX
 description: >
   Allows players to control how minimaps mods work per world.
+softDepend: ["viaversion"]

@@ -16,12 +16,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class JMHandler{
     private final MinimapPlugin plugin;
+    // JM for 1.21 and above no longer has a leading 0 byte at the start of packets.
+    // We need to note who is on a modern version and not send them (or parse) leading 0 bytes
+    private final Map<UUID, Boolean> modernList = new HashMap<>();
 
     public JMHandler(MinimapPlugin plugin) {
         this.plugin = plugin;
@@ -37,13 +38,16 @@ public class JMHandler{
         }
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        in.readByte();
+        if (!modern(player)) in.readByte();
         double x = in.readDouble();
         double y = in.readDouble();
         double z = in.readDouble();
         String dim = NetworkUtils.readUtf(in);
 
-        Optional<World> world = plugin.getServer().getWorlds().stream().filter(w->w.getName().equals(dim)).findFirst();
+        List<World> worlds = plugin.getServer().getWorlds();
+
+        Optional<World> world = worlds.stream().filter(w->w.getName().equals(dim)).findFirst();
+
         if (world.isEmpty()){
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>That world doesn't exist"));
             return;
@@ -54,7 +58,7 @@ public class JMHandler{
 
     public void handleAdminReq(Player player, byte[] message, String replyChannel, int replyByte) {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        in.readByte();
+        if (!modern(player)) in.readByte();
         in.readByte();
         ServerPropType type = ServerPropType.getFromType(in.readInt());
         Gson gson = new Gson();
@@ -73,7 +77,7 @@ public class JMHandler{
 
         for (Map.Entry<String, String> ent : payloads.entrySet()) {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeByte(replyByte);
+            if (!modern(player)) out.writeByte(replyByte);
             out.writeByte(42);
             if (ent.getKey().equals("GLOBAL")) {
                 out.writeInt(ServerPropType.GLOBAL.getId());
@@ -94,7 +98,7 @@ public class JMHandler{
         if (!player.hasPermission("minimap.jm.admin")) return;
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        in.readByte();
+        if (!modern(player)) in.readByte();
         in.readByte();
         int type = in.readInt();
         String dimension = NetworkUtils.readUtf(in);
@@ -124,19 +128,22 @@ public class JMHandler{
 
         String finalPermChannel = permChannel;
         int finalReplyInt = replyInt;
-        plugin.getServer().getOnlinePlayers().forEach(p->handlePerm(p, finalPermChannel, finalReplyInt));
+        plugin.getServer().getOnlinePlayers().forEach(p->handlePerm(p,new byte[0], finalPermChannel, finalReplyInt));
     }
 
-    public void handleVersion(Player player, String replyChannel) {
+    public void handleVersion(Player player, byte[] message, String replyChannel) {
+        modernList.put(player.getUniqueId(), message.length > 0 && message[0] != 0);
+        ByteArrayDataInput in = ByteStreams.newDataInput(message);
         Gson gson = new Gson();
         String payload = gson.toJson(new JMVersion());
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeByte(0);
+        if (!modern(player)) out.writeByte(0);
         NetworkUtils.writeUtf(payload, out);
         player.sendPluginMessage(plugin, replyChannel, out.toByteArray());
     }
 
-    public void handlePerm(Player player, String replyChannel, int replyByte) {
+    public void handlePerm(Player player, byte[] message, String replyChannel, int replyByte) {
+        modernList.putIfAbsent(player.getUniqueId(), message.length > 0 && message[0] == 42);
         JMWorldConfig worldConfig = MinimapConfig.getWorldConfig(player.getLocation().getWorld().getName()).journeymapConfig;
         JMConfig config = MinimapConfig.globalJourneymapConfig;
         if (worldConfig != null) {
@@ -146,6 +153,7 @@ public class JMHandler{
         Gson gson = new Gson();
         String payload = gson.toJson(config);
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        if (!modern(player)) out.writeByte(replyByte);
         out.writeByte(replyByte);
         out.writeByte(42);
         out.writeBoolean(player.hasPermission("minimap.jm.admin"));
@@ -156,8 +164,8 @@ public class JMHandler{
 
     public void onPluginMessage(String channel, Player player, byte[] message) {
         switch (channel.split(":")[1]) {
-            case "version" -> handleVersion(player, channel);
-            case "perm_req" -> handlePerm(player, channel, 0);
+            case "version" -> handleVersion(player,message, channel);
+            case "perm_req" -> handlePerm(player,message, channel, 0);
             case "admin_req" -> handleAdminReq(player, message, channel, 0);
             case "admin_save" -> handleAdminSave(player, message, channel);
             case "teleport_req" -> handleTeleport(player, message);
@@ -167,11 +175,21 @@ public class JMHandler{
                 switch (type) {
                     case 0 -> handleAdminReq(player, message, channel, type);
                     case 1 -> handleAdminSave(player, message, channel);
-                    case 2 -> handlePerm(player, channel, type);
+                    case 2 -> handlePerm(player,message, channel, type);
                     case 4 -> handleTeleport(player, message);
                     case 5 -> handleMPOptions(player);
                 }
             }
         }
+    }
+
+    private boolean modern(Player player) {
+        Boolean modern = modernList.get(player.getUniqueId());
+        if (modern == null) return false;
+        return modern;
+    }
+
+    public void playerLeft(Player player) {
+        modernList.remove(player.getUniqueId());
     }
 }

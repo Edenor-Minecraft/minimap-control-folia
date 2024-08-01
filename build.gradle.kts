@@ -3,7 +3,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-val versionStr = "1.2.0"
+val versionStr = "1.3.0"
 
 group = "net.edenor.minimap"
 version = versionStr
@@ -16,9 +16,12 @@ repositories {
     maven {
         url = uri("https://oss.sonatype.org/content/groups/public/")
     }
+    maven {
+        url = uri("https://repo.viaversion.com")
+    }
 }
 
-val javaTarget = 17
+val javaTarget = 21
 java {
     sourceCompatibility = JavaVersion.toVersion(javaTarget)
     targetCompatibility = JavaVersion.toVersion(javaTarget)
@@ -30,6 +33,7 @@ java {
 dependencies {
     // Main Dependencies
     compileOnly("dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT")
+    compileOnly("com.viaversion:viaversion-api:5.0.1")
 
     // Common Dependencies
     implementation("net.kyori:adventure-api:4.15.0")
@@ -37,8 +41,7 @@ dependencies {
 
     compileOnly("com.google.guava:guava:32.0.0-android")
     compileOnly("com.google.code.gson:gson:2.8.9")
-
-    implementation("dev.dewy:nbt:1.5.1")
+    compileOnly("net.kyori:adventure-nbt:4.15.0")
 }
 
 tasks {
