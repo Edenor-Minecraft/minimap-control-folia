@@ -3,7 +3,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-val versionStr = "1.3.0"
+val versionStr = "1.3.1"
 
 group = "net.edenor.minimap"
 version = versionStr
@@ -37,11 +37,11 @@ dependencies {
 
     // Common Dependencies
     implementation("net.kyori:adventure-api:4.15.0")
+    implementation("net.kyori:adventure-nbt:4.15.0")
     implementation("net.kyori:adventure-text-minimessage:4.15.0")
 
     compileOnly("com.google.guava:guava:32.0.0-android")
     compileOnly("com.google.code.gson:gson:2.8.9")
-    compileOnly("net.kyori:adventure-nbt:4.15.0")
 }
 
 tasks {
