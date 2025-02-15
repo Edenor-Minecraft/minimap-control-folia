@@ -21,17 +21,17 @@ public class SpigotPlayer implements MinimapPlayer {
 
     @Override
     public void sendPluginMessage(byte[] message, String channel) {
-        Bukkit.getScheduler().runTask(SpigotMinimap.getInstance(), ()->nativePlayer.sendPluginMessage(SpigotMinimap.getInstance(), channel, message));
+        Bukkit.getGlobalRegionScheduler().run(SpigotMinimap.getInstance(), v->nativePlayer.sendPluginMessage(SpigotMinimap.getInstance(), channel, message));
     }
 
     @Override
     public void sendMessage(Component message) {
-        SpigotMinimap.getInstance().adventure().player(nativePlayer).sendMessage(message);
+        nativePlayer.sendMessage(message);
     }
 
     @Override
     public void teleport(MinimapLocation location) {
-        nativePlayer.teleport(((SpigotLocation) location).getNativeLocation());
+        nativePlayer.teleportAsync(((SpigotLocation) location).getNativeLocation());
     }
 
     @Override
@@ -41,7 +41,7 @@ public class SpigotPlayer implements MinimapPlayer {
 
     @Override
     public void disconnect(Component reason) {
-        nativePlayer.kickPlayer(LegacyComponentSerializer.legacy('\u00a7').serialize(reason));
+        nativePlayer.kick(reason);
     }
 
     @Override

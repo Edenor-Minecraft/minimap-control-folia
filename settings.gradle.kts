@@ -1,4 +1,4 @@
 rootProject.name = "minimap"
 include("common")
-include("sponge")
+//include("sponge")
 include("spigot")

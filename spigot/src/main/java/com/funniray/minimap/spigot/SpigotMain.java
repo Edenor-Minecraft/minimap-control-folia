@@ -50,7 +50,7 @@ public class SpigotMain extends JavaMinimapPlugin implements PluginMessageListen
     }
 
     @Override
-    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, @NotNull byte[] message) {
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
         this.onPluginMessage(channel, new SpigotPlayer(player), message);
     }
 
@@ -58,7 +58,7 @@ public class SpigotMain extends JavaMinimapPlugin implements PluginMessageListen
     public void onJoin(PlayerJoinEvent event) {
         // The player join event is slightly too early. I unfortunately don't know an event that fires late enough for Xaeros to recognize the packet
         // If anyone knows, please let me know
-        plugin.getServer().getScheduler().runTaskLater(plugin, ()->this.handlePlayerJoined(new SpigotPlayer(event.getPlayer())), 40L);
+        plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin, v->this.handlePlayerJoined(new SpigotPlayer(event.getPlayer())), 40L);
     }
 
     @EventHandler
