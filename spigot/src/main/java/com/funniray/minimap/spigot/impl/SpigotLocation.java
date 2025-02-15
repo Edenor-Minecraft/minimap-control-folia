@@ -5,7 +5,7 @@ import com.funniray.minimap.common.api.MinimapWorld;
 import org.bukkit.Location;
 
 public class SpigotLocation implements MinimapLocation {
-    private Location nativeLocation;
+    private final Location nativeLocation;
 
     public SpigotLocation(Location nativeLocation) {
         this.nativeLocation = nativeLocation;

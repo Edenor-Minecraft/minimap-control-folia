@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class SpigotWorld implements MinimapWorld {
-    private World nativeWorld;
+    private final World nativeWorld;
 
     public SpigotWorld(World nativeWorld) {
         this.nativeWorld = nativeWorld;

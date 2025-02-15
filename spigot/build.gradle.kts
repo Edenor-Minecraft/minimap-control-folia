@@ -1,7 +1,7 @@
 plugins {
     `java-library`
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
+    id("com.gradleup.shadow") version "9.0.0-beta8"
+    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
 val versionStr = (System.getenv("VERSION")?: "v1.0.0").removePrefix("v")
@@ -12,7 +12,7 @@ version = versionStr
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        url = uri("https://repo.papermc.io/repository/maven-public/")
     }
     maven {
         url = uri("https://oss.sonatype.org/content/groups/public/")
@@ -24,26 +24,26 @@ repositories {
 
 dependencies {
     // Main Dependencies
-    compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("com.viaversion:viaversion-api:4.9.2")
     implementation(project(":common"))
 
     // Common Dependencies
     implementation("org.spongepowered:configurate-core:4.1.2")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
-    implementation("net.kyori:adventure-api:4.10.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.1")
-    implementation("net.kyori:adventure-text-minimessage:4.10.0")
-    implementation("net.kyori:adventure-nbt:4.15.0")
+    implementation("net.kyori:adventure-api:4.18.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
+    implementation("net.kyori:adventure-text-minimessage:4.18.0")
+    implementation("net.kyori:adventure-nbt:4.18.0")
 }
 
-val javaTarget = 11
+val javaTarget = 21
 java {
     sourceCompatibility = JavaVersion.toVersion(javaTarget)
     targetCompatibility = JavaVersion.toVersion(javaTarget)
-    if (JavaVersion.current() < JavaVersion.toVersion(javaTarget)) {
+    /*if (JavaVersion.current() < JavaVersion.toVersion(javaTarget)) {
         toolchain.languageVersion.set(JavaLanguageVersion.of(javaTarget))
-    }
+    }*/
 }
 
 tasks {
@@ -76,4 +76,5 @@ bukkit {
 
     apiVersion = "1.13"
     softDepend = listOf("viaversion")
+    foliaSupported = true
 }
