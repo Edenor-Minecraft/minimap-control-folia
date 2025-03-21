@@ -40,6 +40,12 @@ public class JMHandler implements MessageHandler {
     public void handleTeleport(MinimapPlayer player, byte[] message, String replyChannel, int replyByte) {
         if (!player.hasPermission("minimap.jm.teleport")) {
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You don't have permission to teleport."));
+            return;
+        }
+        String teleport = getEffectiveConfig(player).teleportEnabled;
+        if (teleport.equalsIgnoreCase("none") || (teleport.equalsIgnoreCase("ops") && !player.hasPermission("minimap.jm.admin"))) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Teleport packet was sent, but teleporting isn't enabled."));
+            return;
         }
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
@@ -139,22 +145,36 @@ public class JMHandler implements MessageHandler {
 
     public void handleVersion(MinimapPlayer player, byte[] message, String replyChannel) {
         modernList.put(player.getUniqueId(), message.length > 0 && message[0] != 0);
-        ByteArrayDataInput in = ByteStreams.newDataInput(message);
         Gson gson = new Gson();
-        String payload = gson.toJson(new JMVersion());
+        JMVersion serverVersion = new JMVersion();
+        ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        if (!modern(player)) in.readByte();
+
+        String sent = NetworkUtils.readUtf(in);
+        JMVersion clientVersion = gson.fromJson(sent, JMVersion.class);
+        if (clientVersion.journeymap_version.major <= 5) {
+            serverVersion.journeymap_version = new JMVersion.VersionDetails(6,0,0,null);
+        }
+
+        String payload = gson.toJson(serverVersion);
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         if (!modern(player)) out.writeByte(0);
         NetworkUtils.writeUtf(payload, out);
         player.sendPluginMessage(out.toByteArray(), replyChannel);
     }
 
-    public void handlePerm(MinimapPlayer player, byte[] message, String replyChannel, int replyByte) {
-        modernList.putIfAbsent(player.getUniqueId(), message.length > 0 && message[0] == 42);
+    public JMConfig getEffectiveConfig(MinimapPlayer player) {
         JMWorldConfig worldConfig = plugin.getConfig().getWorldConfig(player.getLocation().getWorld().getName()).journeymapConfig;
         JMConfig config = plugin.getConfig().globalJourneymapConfig;
         if (worldConfig != null) {
-            config = worldConfig.applyToConfig(config);
+            return worldConfig.applyToConfig(config);
         }
+        return config;
+    }
+
+    public void handlePerm(MinimapPlayer player, byte[] message, String replyChannel, int replyByte) {
+        modernList.putIfAbsent(player.getUniqueId(), message.length > 0 && message[0] == 42);
+        JMConfig config = getEffectiveConfig(player);
 
         Gson gson = new Gson();
         String payload = gson.toJson(config);
