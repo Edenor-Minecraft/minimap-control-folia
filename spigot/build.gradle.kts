@@ -24,17 +24,17 @@ repositories {
 
 dependencies {
     // Main Dependencies
-    compileOnly("dev.folia:folia-api:1.20.1-R0.1-SNAPSHOT")
-    compileOnly("com.viaversion:viaversion-api:4.9.2")
+    compileOnly("dev.folia:folia-api:1.21.6-R0.1-SNAPSHOT")
+    compileOnly("com.viaversion:viaversion-api:5.4.1")
     implementation(project(":common"))
 
     // Common Dependencies
-    implementation("org.spongepowered:configurate-core:4.1.2")
-    implementation("org.spongepowered:configurate-yaml:4.1.2")
-    implementation("net.kyori:adventure-api:4.18.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
-    implementation("net.kyori:adventure-text-minimessage:4.18.0")
-    implementation("net.kyori:adventure-nbt:4.18.0")
+    implementation("org.spongepowered:configurate-core:4.2.0")
+    implementation("org.spongepowered:configurate-yaml:4.2.0")
+    implementation("net.kyori:adventure-api:4.22.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.4.0")
+    implementation("net.kyori:adventure-text-minimessage:4.22.0")
+    implementation("net.kyori:adventure-nbt:4.22.0")
 }
 
 val javaTarget = 21

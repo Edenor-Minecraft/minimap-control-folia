@@ -5,6 +5,7 @@ import com.funniray.minimap.common.api.MinimapServer;
 import com.funniray.minimap.spigot.impl.SpigotPlayer;
 import com.funniray.minimap.spigot.impl.SpigotServer;
 import com.funniray.minimap.spigot.impl.SpigotWorld;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,6 +20,8 @@ import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SpigotMain extends JavaMinimapPlugin implements PluginMessageListener, Listener {
     public SpigotMinimap plugin;
@@ -54,15 +57,25 @@ public class SpigotMain extends JavaMinimapPlugin implements PluginMessageListen
         this.onPluginMessage(channel, new SpigotPlayer(player), message);
     }
 
+    private final Map<String, ScheduledTask> playerTaskMap = new HashMap<>();
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         // The player join event is slightly too early. I unfortunately don't know an event that fires late enough for Xaeros to recognize the packet
         // If anyone knows, please let me know
         plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin, v->this.handlePlayerJoined(new SpigotPlayer(event.getPlayer())), 40L);
+        ScheduledTask task = this.plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(this.plugin,
+                (v) -> this.handlePlayerJoined(new SpigotPlayer(event.getPlayer())), 40L, 40L);
+        this.playerTaskMap.put(event.getPlayer().getName(), task);
     }
 
     @EventHandler
     public void onLeft(PlayerQuitEvent event) {
+        ScheduledTask task = this.playerTaskMap.get(event.getPlayer().getName());
+        if (task != null) {
+            this.playerTaskMap.get(event.getPlayer().getName()).cancel();
+            this.playerTaskMap.remove(event.getPlayer().getName());
+        }
         this.handlePlayerLeft(new SpigotPlayer(event.getPlayer()));
     }
 
