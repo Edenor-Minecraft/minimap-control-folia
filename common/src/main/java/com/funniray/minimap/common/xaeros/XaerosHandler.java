@@ -39,6 +39,8 @@ public class XaerosHandler implements MessageHandler {
             config = worldConfig;
         }
 
+        config = config.applyOverrides(player);
+
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeByte(4);
         CompoundBinaryTag tag = CompoundBinaryTag.builder()

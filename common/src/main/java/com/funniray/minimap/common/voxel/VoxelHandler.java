@@ -26,7 +26,7 @@ public class VoxelHandler {
             config = worldConfig;
         }
 
-        String configJson = new Gson().toJson(config);
+        String configJson = new Gson().toJson(config.applyOverrides(player));
 
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeByte(42);
